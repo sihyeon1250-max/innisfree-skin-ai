@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이니스프리 Jeju Sun-Tees Race</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <style>
+        :root { --main-green: #1c4d2d; --leaf-green: #a3c644; }
+       body {
+    /* [복구] 메인 배경 이미지 설정 */
+    background: url('/static/main_bg.png') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Pretendard', sans-serif; 
+    margin: 0;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    min-height: 100vh;
+}
+        .header-bar {
+            width: 100%; height: 60px; background: rgba(255,255,255,0.95);
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: fixed; top: 0; z-index: 1000;
+        }
+        .brand-logo { font-size: 22px; font-weight: 800; color: var(--main-green); }
+
+       .content-container {
+    width: 90%; 
+    max-width: 600px; 
+    /* 배경 이미지가 잘 보이도록 컨테이너에 약간의 투명도 부여 */
+    background: rgba(255, 255, 255, 0.9); 
+    padding: 50px 40px; 
+    border-radius: 30px; 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15); 
+    margin-top: 100px; 
+    margin-bottom: 50px; 
+    text-align: center;
+}
+
+        /* 설문 스타일 */
+        .survey-container { display: none; }
+        .question-text { font-size: 1.3rem; font-weight: 700; margin-bottom: 40px; word-break: keep-all; min-height: 3.5rem; }
+        .options { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        input[type="radio"] { appearance: none; border: 2px solid #ddd; border-radius: 50%; cursor: pointer; width: 40px; height: 40px; transition: 0.2s; }
+        input[type="radio"]:checked { background-color: var(--leaf-green); border-color: var(--leaf-green); transform: scale(1.1); }
+
+        /* [복구] 사진 2 스타일 결과 카드 CSS */
+        .result-page { display: none; }
+        .sun-type-card { margin-top: 25px; padding: 25px; background: #f9faf9; border-radius: 20px; border: 1px solid #eee; }
+        .char-img { width: 180px; margin: 20px 0; }
+        .type-tags { color: var(--main-green); font-weight: bold; font-size: 1.1rem; margin-bottom: 15px; }
+        .detail-list { text-align: left; font-size: 0.95rem; line-height: 1.7; color: #444; margin-top: 15px;}
+        .detail-list p { margin: 8px 0; }
+        
+        .link-btn { display: block; width: 100%; padding: 16px 0; background: var(--main-green); color: white; border-radius: 12px; margin-top: 10px; font-weight: bold; text-decoration: none; border: none; cursor: pointer; font-size: 1rem; }
+        .sub-btn { padding: 12px 24px; background: #f0f0f0; border: none; border-radius: 50px; cursor: pointer; margin: 5px; font-weight: 600; }
+
+        /* 모달 스타일 */
+        #explorer-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; overflow-y: auto; }
+        .modal-body { background:#fff; width:90%; max-width:480px; margin:50px auto; padding:30px; border-radius:25px; position:relative; }
+        .explorer-item { padding: 20px 0; border-bottom: 1px solid #f0f0f0; text-align: left; }
+        .explorer-header { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .explorer-header img { width: 60px; height: 60px; object-fit: contain; }
+        .story-content { display: none; background: #f8fbf8; padding: 18px; font-size: 0.9rem; border-radius: 15px; margin-top: 12px; line-height: 1.6; border: 1px solid #eef2ee; }
+        .close-modal { position: absolute; top: 20px; right: 20px; font-size: 30px; cursor: pointer; color: #999; }
+    </style>
+</head>
+<body>
+
+    <header class="header-bar">
+        <div class="brand-logo">innisfree</div>
+    </header>
+
+    <div id="jeju-intro" class="content-container">
+        <h1 style="color:var(--main-green); font-size: 2rem;">Jeju Sun-Tees Race</h1>
+        <p>나의 마라톤 레이스 파트너를 찾아보세요!</p>
+        <button class="link-btn" style="width:200px; margin: 20px auto;" onclick="startSurvey()">진단 시작하기</button>
+    </div>
+
+    <div class="content-container survey-container" id="main-container">
+        <div id="survey-content">
+            <div id="progress-text" style="color:var(--leaf-green); font-weight:800; margin-bottom:10px;">1 / 20</div>
+            <div class="question-text" id="question-label"></div>
+            <div class="options">
+                <div><input type="radio" name="skin" value="1" onclick="handleSelect(1)"><br><small>아니다</small></div>
+                <input type="radio" name="skin" value="2" onclick="handleSelect(2)">
+                <input type="radio" name="skin" value="3" onclick="handleSelect(3)">
+                <input type="radio" name="skin" value="4" onclick="handleSelect(4)">
+                <div><input type="radio" name="skin" value="5" onclick="handleSelect(5)"><br><small>그렇다</small></div>
+            </div>
+            <button class="sub-btn" onclick="prevQuestion()">이전으로</button>
+        </div>
+
+        <div id="result-content" class="result-page">
+            <h2 id="user-type">당신의 파트너는?</h2>
+            
+            <button class="link-btn" id="sun-type-btn" onclick="submitSurvey()">나의 썬티즈 캐릭터 확인</button>
+
+            <div id="sun-type-card" class="sun-type-card" style="display:none;">
+                <h3 id="char-title"></h3>
+                <img id="char-img" src="" class="char-img">
+                <div id="char-tags" class="type-tags"></div>
+                
+                <div style="text-align:left; background:#fff; padding:20px; border-radius:15px; font-size:0.95rem; line-height:1.6; border:1px solid #eee; margin-bottom:15px;">
+                    <b>✨ 캐릭터 스토리:</b> <span id="char-story"></span>
+                </div>
+                
+                <div class="detail-list">
+                    <p><b>🚩 상태:</b> <span id="char-status"></span></p>
+                    <p><b>🚩 특징:</b> <span id="char-feature"></span></p>
+                    <p><b>🚩 케어:</b> <span id="char-care"></span></p>
+                </div>
+                
+                <button id="char-rec-btn" class="link-btn"></button>
+                <button onclick="location.reload()" class="sub-btn" style="margin-top:20px; width:48%;">다시하기</button>
+                <button onclick="openExplorer()" class="sub-btn" style="width:48%;">다른 캐릭터 보러가기</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="explorer-modal">
+        <div class="modal-body">
+            <span class="close-modal" onclick="closeExplorer()">&times;</span>
+            <h2 style="color:var(--main-green); margin-top:0;">Jeju Sun-Tees 캐릭터</h2>
+            <div id="char-list-container"></div>
+        </div>
+    </div>
+
+    <script>
+        // [유지] 수정한 취향 반영 질문 리스트
+        const questions = [
+            "1. 야외 활동이나 운동(마라톤 등)을 정기적으로 즐기는 편이다.",
+            "2. 자외선 차단제를 고를 때 차단 지수(SPF50+)를 가장 중요하게 생각한다.",
+            "3. 선크림만 발라도 얼굴이 화사해지는 '톤업 효과'를 선호한다.",
+            "4. 평소 피부가 건조해서 수분 크림을 듬뿍 바르는 편이다.",
+            "5. 시간이 지나면 얼굴에 유분이 올라와 번들거리는 것이 싫다.",
+            "6. 선케어 제품은 끈적임 없이 보송하게 마무리되는 것이 좋다.",
+            "7. 피부가 예민해서 외부 자극에 금방 붉어지는 편이다.",
+            "8. 평소 피부 톤이 칙칙해 보여 안색을 밝히고 싶을 때가 많다.",
+            "9. 물이나 땀에 강한 '워터프루프' 기능을 선호한다.",
+            "10. 세안 직후 피부가 바짝 마르는 느낌(속건조)을 자주 받는다.",
+            "11. 두꺼운 메이크업보다는 선크림 하나로 가볍게 외출하는 것을 좋아한다.",
+            "12. 자외선으로 인한 기미나 잡티 고민이 최근 시작되었다.",
+            "13. 얼굴 전체적으로 수분이 부족해 푸석푸석해 보일 때가 많다.",
+            "14. 메이크업 전, 피부 결을 매끈하게 정돈해주는 베이스 기능을 원한다.",
+            "15. 태양 아래 오래 있으면 피부가 금방 뜨거워지고 열감이 느껴진다.",
+            "16. 선크림을 발랐을 때 하얗게 뜨는 것보다 투명하게 흡수되는 게 좋다.",
+            "17. T존(이마, 코)의 번들거림을 잡기 위해 파우더를 자주 사용한다.",
+            "18. 환절기가 되면 피부 각질이 일어나고 화장이 잘 안 먹는다.",
+            "19. 피부 노화 방지를 위해 선케어를 거르지 않는다.",
+            "20. 내 피부 타입에 딱 맞는 선크림을 찾고 싶다."
+        ];
+
+        let currentIdx = 0; let answers = [];
+
+        function startSurvey() {
+            document.getElementById('jeju-intro').style.display = 'none';
+            document.getElementById('main-container').style.display = 'block';
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('question-label').innerText = questions[currentIdx];
+            document.getElementById('progress-text').innerText = `${currentIdx + 1} / 20`;
+            document.getElementsByName('skin').forEach(r => r.checked = false);
+        }
+
+        function handleSelect(val) {
+            answers[currentIdx] = val;
+            if (currentIdx < 19) { currentIdx++; setTimeout(updateUI, 200); }
+            else { 
+                document.getElementById('survey-content').style.display = 'none';
+                document.getElementById('result-content').style.display = 'block';
+            }
+        }
+
+        function prevQuestion() { if (currentIdx > 0) { currentIdx--; updateUI(); } }
+
+        // [복구] 상세 데이터를 UI에 매핑하는 제출 함수
+        function submitSurvey() {
+            fetch('/submit', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers: answers })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('sun-type-btn').style.display = 'none';
+                document.getElementById('sun-type-card').style.display = 'block';
+                
+                // 기본 정보 매핑
+                document.getElementById('char-title').innerText = data.title;
+                document.getElementById('char-img').src = "/static/" + data.image;
+                document.getElementById('char-tags').innerText = data.tags;
+                document.getElementById('char-story').innerText = data.story;
+                
+                // [복구] 상세 항목 매핑
+                document.getElementById('char-status').innerText = data.status;
+                document.getElementById('char-feature').innerText = data.feature;
+                document.getElementById('char-care').innerText = data.care;
+                
+                // 버튼 매핑
+                document.getElementById('char-rec-btn').innerText = data.rec_btn;
+                document.getElementById('char-rec-btn').onclick = () => window.open(data.link, '_blank');
+            });
+        }
+
+        // 모달 데이터 (마라톤 스토리 버전 유지)
+      // 캐릭터별 상세 스토리 및 제품 링크 데이터
+const charDetails = {
+    'Glowy': {
+        story: '☀️ <b>빛돌이 (Glowy)</b><br>"태양 아래 당당한 모험가"<br><br>빛돌이는 뜨거운 태양을 사랑하는 수호자예요. SPF50+ 왕관으로 광노화를 완벽 차단해, 당신이 햇볕 아래서도 가장 자신 있게 달릴 수 있도록 든든한 방패가 되어줍니다!',
+        link: 'https://m.innisfree.com/kr/ko/dp/product/100331?inmPrdCatCd=SUAB'
+    },
+    'Hyalumi': {
+        story: '💧 <b>히알루미 (Hyalumi)</b><br>"사막에서도 촉촉한 수분 수호자"<br><br>땀과 열로 메마른 레이스 코스를 수분 가득한 숲으로 바꿔줄게요! 물방울 지팡이로 피부 속까지 수분을 꽉 채워 완주 후에도 당김 없는 촉촉함을 선물합니다.',
+        link: 'https://m.innisfree.com/kr/ko/dp/product/100510?inmPrdCatCd=SUAB'
+    },
+    'Tone-Po': {
+        story: '✨ <b>톤뽀 (Tone-Po)</b><br>"빛을 입혀 피부를 밝혀주는 톤 연출가"<br><br>번들거리는 유분은 싹 잡고 보송함만 남겨드려요! 톤뽀의 매직 퍼프가 피부에 화사한 빛을 입혀, 피니시 라인에서 가장 빛나는 주인공으로 만들어 줄 거예요',
+        link: 'https://m.innisfree.com/kr/ko/dp/product/103267?inmPrdCatCd=SUAB'
+    }
+};
+
+function openExplorer() {
+    const container = document.getElementById('char-list-container');
+    container.innerHTML = '';
+    const allChars = [
+        { key: 'Glowy', name: '빛돌이', img: 'glowy.png' },
+        { key: 'Hyalumi', name: '히알루미', img: 'hyalumi.png' },
+        { key: 'Tone-Po', name: '톤뽀', img: 'tonepo.png' }
+    ];
+
+    allChars.forEach(char => {
+        const item = document.createElement('div');
+        item.className = 'explorer-item';
+        item.innerHTML = `
+            <div class="explorer-header">
+                <img src="/static/${char.img}">
+                <div>
+                    <strong>${char.name}</strong><br>
+                    <div style="display: flex; gap: 5px; margin-top: 5px;">
+                        <button class="sub-btn" style="font-size:0.75rem; padding:5px 12px;" onclick="toggleStory('${char.key}')">스토리 보기</button>
+                        <button class="sub-btn" style="font-size:0.75rem; padding:5px 12px; background: var(--main-green); color: white;" onclick="window.open('${charDetails[char.key].link}', '_blank')">추천 선케어 보러가기</button>
+                    </div>
+                </div>
+            </div>
+            <div id="story-${char.key}" class="story-content"></div>
+        `;
+        container.appendChild(item);
+    });
+    document.getElementById('explorer-modal').style.display = 'block';
+}
+
+function toggleStory(key) {
+    const storyDiv = document.getElementById(`story-${key}`);
+    const isVisible = storyDiv.style.display === 'block';
+    
+    // 다른 열린 스토리 닫기
+    document.querySelectorAll('.story-content').forEach(d => d.style.display = 'none');
+    
+    if (!isVisible) {
+        storyDiv.innerHTML = charDetails[key].story;
+        storyDiv.style.display = 'block';
+    }
+}
+        function closeExplorer() { document.getElementById('explorer-modal').style.display = 'none'; }
+    </script>
+</body>
+</html>
